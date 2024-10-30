@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="it" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Intesa vincente</title>
+    <link rel="stylesheet" href="assets/master.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="icon" href="data:," />
+  </head>
+  <body>
+
+    <div class="container">
+      <div class="container-gioco">
+        <div class="timer">
+          <h1><span id="minuti"></span>:<span id="secondi"></span></h1>
+        </div>
+        <div class="word">
+          <h1 id="parola">STORTI</h1>
+        </div>
+        <div class="point">
+          <h1 id="punti"></h1>
+        </div>
+      </div>
+
+      <div class="container-controlli">
+        <div class="vite red" id="vite">
+          <h1><i class='bx bxs-heart'></i></h1>
+          <h1><i class='bx bxs-heart'></i></h1>
+          <h1><i class='bx bxs-heart' ></i></h1>
+        </div>
+        <div class="vite yellow">
+          <h1 onclick="double(this)"><i class='bx bxs-star'></i></h1>
+          <h1 onclick="double(this)"><i class='bx bxs-star'></i></h1>
+        </div>
+      </div>
+
+      <div class="container-controlli">
+        <div class="controlli">
+          <button type="button" name="avvia" id="avvioToggle" onclick="avvia(this)"><i class='bx bxs-hand' ></i></button>
+          <button type="button" name="giusto" onclick="addPoint()"><i class='bx bx-check green' ></i></button>
+          <button type="button" name="errato" onclick="remPoint()"><i class='bx bx-x red'></i></button>
+        </div>
+      </div>
+    </div>
+
+
+    <script type="text/javascript">
+      let minuti = 1, // Tempo iniziale 1 minuto
+          secondi = 0;
+      let intervallo;
+
+      var raddoppia = false;
+
+      var vite = 3;
+
+      let parole = [];
+      let indice = 0;
+
+      async function caricaParole() {
+        try {
+        const response = await fetch('assets/paroliere.json');
+        const data = await response.json();
+        parole = data.paroliere;
+            } catch (error) {
+        console.error("Errore nel caricamento delle parole:", error);
+            }
+          }
+
+      document.getElementById("minuti").innerText = String(minuti).padStart(2, "0");
+      document.getElementById("secondi").innerText = String(secondi).padStart(2, "0");
+
+      let point = 0;
+      document.getElementById('punti').innerText = point;
+
+      function aggiornaTimer() {
+          if (secondi === 0) {
+              if (minuti === 0) {
+                      ferma(); // Ferma il timer quando arriva a 0
+                      alert("Tempo scaduto!");
+                      return;
+              } else {
+                  minuti--;
+                  secondi = 59;
+              }
+          } else {
+              secondi--;
+          }
+          document.getElementById("minuti").innerText = String(minuti).padStart(2, "0");
+          document.getElementById("secondi").innerText = String(secondi).padStart(2, "0");
+      }
+
+      function avvia(e) {
+        let parola = parole[Math.floor(Math.random() * parole.length)];
+        document.getElementById('parola').innerText = parola;
+          if (!intervallo) {
+              intervallo = setInterval(aggiornaTimer, 1000); // Aggiorna ogni secondo
+          }
+          e.setAttribute('onclick','passo()');
+      }
+
+      function ferma() {
+          clearInterval(intervallo);
+          intervallo = null;
+          document.getElementById('avvioToggle').setAttribute('onclick','avvia(this)');
+      }
+
+      function reset() {
+          ferma();
+          minuti = 1; // Reset al tempo iniziale desiderato
+          secondi = 0;
+          document.getElementById("minuti").innerText = "00";
+          document.getElementById("secondi").innerText = "00";
+      }
+
+
+
+      //CONTROLLO PUNTI
+      function addPoint(){
+        if (intervallo) {
+          ferma();
+          if (raddoppia) {
+            point += 2;
+            raddoppia = false;
+          }else {
+            point++;
+          }
+          document.getElementById('punti').innerText = point;
+        }else {
+          return;
+        }
+      }
+
+      function remPoint(){
+        if (intervallo) {
+          ferma();
+          if (point > 0) {
+            point--;
+          }
+          raddoppia = false;
+          document.getElementById('punti').innerText = point;
+        }else {
+          return;
+        }
+      }
+
+      function double(e){
+          raddoppia = true;
+          e.removeAttribute("onclick");
+          const star = e.children;
+          star[0].classList.remove('bxs-star');
+          star[0].classList.add('bx-star')
+      }
+
+      function passo(){
+        if (vite === 0) {
+          return;
+        }else {
+          ferma();
+          vite--;
+          const hearts = document.getElementById('vite').children;
+          hearts[vite].children[0].classList.remove('bxs-heart');
+          hearts[vite].children[0].classList.add('bx-heart');
+          raddoppia = false;
+        }
+      }
+
+window.onload = caricaParole;
+
+
+    </script>
+
+  </body>
+</html>
