@@ -116,6 +116,10 @@ body{
   color: #46E31D;
 }
 
+.white{
+  color:#FFF;
+}
+
 .controlli{
   display: flex;
   grid-gap: .20em;
