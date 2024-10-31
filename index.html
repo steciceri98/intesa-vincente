@@ -9,7 +9,11 @@
   </head>
   <body>
 
-    <h1><i class='bx bx-info-circle white'></i></h1>
+    <div class="container-settings">
+      <h1 onclick="toggleSettings(this)" data-target="settings"><i class='bx bx-cog settings'></i></h1>
+      <!-- <h1 onclick="toggleSettings(this)" data-target="info"><i class='bx bx-info-circle settings'></i></h1> -->
+    </div>
+
 
     <div class="container">
       <div class="container-gioco">
@@ -30,9 +34,9 @@
           <h1><i class='bx bxs-heart'></i></h1>
           <h1><i class='bx bxs-heart' ></i></h1>
         </div>
-        <div class="vite yellow">
-          <h1 onclick="double(this)"><i class='bx bxs-star'></i></h1>
-          <h1 onclick="double(this)"><i class='bx bxs-star'></i></h1>
+        <div class="vite yellow" id="coin">
+          <h1 onclick="double(this)"><i class='bx bxs-coin'></i></h1>
+          <h1 onclick="double(this)"><i class='bx bxs-coin'></i></h1>
         </div>
       </div>
 
@@ -44,6 +48,39 @@
         </div>
       </div>
     </div>
+
+    <div class="set-settings hide" id="settings" data-toggle="false">
+      <div class="header">
+        <h1>Impostazioni partita</h1>
+      </div>
+      <div class="content">
+        <h2>
+          <input type="radio" id="facile" name="level" value="0">
+          <label for="facile">Facile</label>
+        </h2>
+          <p>3 minuti di tempo, 5 vite, 3 monete</p>
+
+          <h2>
+            <input type="radio" id="normale" name="level" value="1" checked>
+            <label for="normale">Normale</label>
+          </h2>
+          <p>1 minuto di tempo, 3 vite, 2 monete</p>
+
+          <h2>
+            <input type="radio" id="difficile" name="level" value="2">
+            <label for="difficile">Difficile</label>
+          </h2>
+          <p>1 minuto di tempo, 1 vita, 1 moneta</p>
+      </div>
+      <div class="footer">
+        <button type="button" class="bg-save" name="salva" onclick="reset(this)" data-target="settings">salva</button>
+        <button type="button" class="bg-close" name="chiudi" onclick="toggleSettings(this)" data-target="settings">annulla</button>
+      </div>
+    </div>
+
+    <!-- <div class="set-settings hide" id="info" data-toggle="false">
+      <h1>info gioco</h1>
+    </div> -->
 
 
     <script type="text/javascript">
@@ -106,12 +143,55 @@
           document.getElementById('avvioToggle').setAttribute('onclick','avvia(this)');
       }
 
-      function reset() {
+      //vettore livelli
+      let livelli = [
+        {"facile" : 0, "vite" : 5, "monete" : 3, "minuti" : 3, "secondi" : 0},
+        {"normale" : 1, "vite" : 3, "monete" : 2, "minuti" : 1, "secondi" : 0},
+        {"difficile" : 2, "vite" : 2, "monete" : 1, "minuti" : 1, "secondi" : 0}
+      ];
+
+      function reset(e) { //aggiungere controlli per modificare vite e raddoppi
+        let livelloSelezionato = document.querySelector('input[name="level"]:checked').value;
+        const level = livelli[livelloSelezionato];
+
+          document.getElementById("minuti").innerText = String(level.minuti).padStart(2, "0");
+          document.getElementById("secondi").innerText = String(level.secondi).padStart(2, "0");
+
+          //creare elementi per vite e raddoppi
+          const viteContainer = document.getElementById('vite');
+          while (viteContainer.firstChild) {
+            viteContainer.removeChild(viteContainer.firstChild);
+          }
+
+          for (var i = 0; i < level.vite; i++) {
+            const vitaH = document.createElement('h1');
+            const vitaI = document.createElement('i');
+            vitaI.classList.add('bx', 'bxs-heart');
+            vitaH.appendChild(vitaI);
+            viteContainer.appendChild(vitaH);
+          }
+
+          vite = level.vite;
+
+          const coinContainer = document.getElementById('coin');
+          while (coinContainer.firstChild) {
+            coinContainer.removeChild(coinContainer.firstChild);
+          }
+
+          for (var i = 0; i < level.monete; i++) {
+            const coinH = document.createElement('h1');
+            const coinI = document.createElement('i');
+            coinI.classList.add('bx', 'bxs-coin');
+            coinH.setAttribute('onclick', 'double(this)')
+            coinH.appendChild(coinI);
+            coinContainer.appendChild(coinH);
+          }
+
+          point = 0;
+          document.getElementById('punti').innerText = point;
+          raddoppia = false;
           ferma();
-          minuti = 1; // Reset al tempo iniziale desiderato
-          secondi = 0;
-          document.getElementById("minuti").innerText = "00";
-          document.getElementById("secondi").innerText = "00";
+          toggleSettings(e);
       }
 
 
@@ -149,12 +229,13 @@
           raddoppia = true;
           e.removeAttribute("onclick");
           const star = e.children;
-          star[0].classList.remove('bxs-star');
-          star[0].classList.add('bx-star')
+          star[0].classList.remove('bxs-coin');
+          star[0].classList.add('bx-coin')
       }
 
       function passo(){
         if (vite === 0) {
+          remPoint();
           return;
         }else {
           ferma();
@@ -167,6 +248,21 @@
       }
 
 window.onload = caricaParole;
+
+function toggleSettings(id){
+  const target = id.getAttribute('data-target');
+  const elementToToggle = document.getElementById(target);
+
+  if (elementToToggle.getAttribute('data-toggle') === "true") {
+    elementToToggle.classList.remove('show');
+    elementToToggle.classList.add('hide');
+    elementToToggle.setAttribute('data-toggle', 'false');
+  }else {
+    elementToToggle.classList.remove('hide');
+    elementToToggle.classList.add('show');
+    elementToToggle.setAttribute('data-toggle', 'true');
+  }
+}
 
 
     </script>
